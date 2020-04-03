@@ -24,29 +24,39 @@ const Section = styled.section`
 `;
 
 const reducer = (state, action) => {
-    const {time, isLive} = state;
+    const {start, end, isLive} = state;
     const {type} = action;
+    const now = new Date();
     switch (type) {
         case 'LOOP':
-            return {time: time + 1, isLive: isLive, isReset: false};
+            return {start: start, end: now, isLive: isLive, isReset: false};
         case 'START':
-            return {time: time + 1, isLive: true, isReset: false};
+            return {start: now, end: now, isLive: true, isReset: false};
         case 'STOP':
-            return {time: time, isLive: false, isReset: false};
+            return {start: start, end: now, isLive: false, isReset: false};
         case 'RESET':
-            return {time: 0, isLive: isLive, isReset: true};
+            return {start: now, end: now, isLive: isLive, isReset: true};
     }
 };
 
+const getTime = (start, end) => {
+    const time = end - start;
+    const miliSecond = Math.floor((time % 1000) / 10);
+    const second = Math.floor(time / 1000) % 60;
+    const minute = Math.floor(Math.floor(time / 1000) / 60) % 60;
+    const hour = Math.floor(Math.floor(Math.floor(time / 1000) / 60) / 60) % 24;
+    return `${hour} : ${minute} : ${second} : ${miliSecond}`;
+};
+
 function Index() {
-    const [state, dispatch] = useReducer(reducer, {time: 0, isLive: false});
+    const [state, dispatch] = useReducer(reducer, {start: new Date(), end: new Date(), isLive: false});
     useEffect(() => {
         (function () {
             const {isLive, isReset} = state;
             if (isLive && !isReset) {
                 setTimeout(() => {
-                    dispatch({type: 'LOOP', time: state.time, isLive: state.isLive});
-                }, 1000);
+                    dispatch({...state, type: 'LOOP'});
+                }, 50);
             }
         })();
     }, [state]);
@@ -54,7 +64,7 @@ function Index() {
     return (
         <Wrapper>
             <Title>STOP WATCH</Title>
-            <Section>{state.time}</Section>
+            <Section>{getTime(state.start, state.end)}</Section>
             <Controller state={state} dispatch={dispatch}/>
         </Wrapper>
     );

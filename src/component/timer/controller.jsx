@@ -24,16 +24,16 @@ const Button = styled.button`
 function Controller({state, dispatch}) {
     const start = () => {
         if (!state.isLive) {
-            dispatch({type: 'START', time: state.time});
+            dispatch({...state, type: 'START'});
         }
     };
 
     const stop = () => {
-        dispatch({type: 'STOP', time: state.time})
+        dispatch({...state, type: 'STOP'})
     };
 
     const reset = () => {
-        dispatch({type: 'RESET'});
+        dispatch({...state, type: 'RESET'});
     };
 
     return (
